@@ -18,6 +18,12 @@
 
 package org.apache.flink.connector.cassandra.source;
 
+import static org.apache.flink.util.Preconditions.checkNotNull;
+import static org.apache.flink.util.Preconditions.checkState;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
@@ -41,12 +47,6 @@ import org.apache.flink.connector.cassandra.source.split.CassandraSplitSerialize
 import org.apache.flink.core.io.SimpleVersionedSerializer;
 import org.apache.flink.streaming.connectors.cassandra.ClusterBuilder;
 import org.apache.flink.streaming.connectors.cassandra.MapperOptions;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static org.apache.flink.util.Preconditions.checkNotNull;
-import static org.apache.flink.util.Preconditions.checkState;
 
 /**
  * A bounded source to read from Cassandra and return a collection of entities as {@code
@@ -142,9 +142,6 @@ public class CassandraSource<OUT>
 
     @VisibleForTesting
     public static Matcher checkQueryValidity(String query) {
-        checkState(
-                !query.matches(CQL_PROHIBITED_CLAUSES_REGEXP.pattern()),
-                "Aggregations/OrderBy are not supported because the query is executed on subsets/partitions of the input table");
         final Matcher queryMatcher = SELECT_REGEXP.matcher(query);
         checkState(
                 queryMatcher.matches(),
